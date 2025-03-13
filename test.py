@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+ffrom PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from sklearn.cluster import KMeans
 
@@ -59,14 +59,30 @@ if __name__ == "__main__":
         print("Шрифт 'arial.ttf' не найден. Убедитесь, что файл шрифта существует.")
         exit(1)
 
-    # Проходим по каждому пикселю и определяем цвет треугольника
-    for y in range(height):
-        for x in range(width):
+    # Наложение сетки на изображение
+    dpi = 96
+    mm_to_px = dpi / 25.4
+    grid_step = 5 * mm_to_px
+
+    grid_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw_grid = ImageDraw.Draw(grid_layer)
+
+    for y in range(0, height, int(grid_step)):
+        draw_grid.line([(0, y), (width, y)], fill=(0, 0, 0, 128))
+
+    for x in range(0, width, int(grid_step)):
+        draw_grid.line([(x, 0), (x, height)], fill=(0, 0, 0, 128))
+
+    result_image = Image.alpha_composite(image.convert("RGBA"), grid_layer)
+
+    # Простановка цифр в квадратики
+    for y in range(0, height, int(grid_step)):
+        for x in range(0, width, int(grid_step)):
             color = get_triangle_color(x, y, image_array, unique_colors)
             if color is not None:
                 number = color_to_number[tuple(color)]
                 draw_number_in_triangle(draw, number, x, y, font)
 
     # Сохраняем результат
-    result_image.save('output_image.png')
-    print("Результат сохранен в файл: output_image.png")
+    result_image.save('output_image_with_grid_and_numbers.png')
+    print("Результат сохранен в файл: output_image_with_grid_and_numbers.png")
