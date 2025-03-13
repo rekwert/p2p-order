@@ -1,8 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+from sklearn.cluster import KMeans
 
 # Функция для проверки близости цветов
 def is_close_color(color1, color2, threshold=10):
+    if len(color1) != len(color2):
+        return False
     return all(abs(c1 - c2) <= threshold for c1, c2 in zip(color1, color2))
 
 # Функция для определения цвета треугольника по его центру
@@ -23,6 +26,13 @@ def draw_number_in_triangle(draw, number, x, y, font):
     text_y = y - text_height // 2
     draw.text((text_x, text_y), text, fill="black", font=font)
 
+# Анализ изображения на цвета с использованием K-Means
+def get_unique_colors_kmeans(image_array, num_colors=10):
+    pixels = image_array.reshape(-1, 3)
+    kmeans = KMeans(n_clusters=num_colors, random_state=0).fit(pixels)
+    unique_colors = kmeans.cluster_centers_.astype(int)
+    return unique_colors
+
 # Основной код
 if __name__ == "__main__":
     # Загрузка изображения
@@ -30,17 +40,13 @@ if __name__ == "__main__":
     width, height = image.size
 
     # Преобразование изображения в массив NumPy для анализа пикселей
-    image_array = np.array(image)
+    image_array = np.array(image).astype(np.int32)
 
     # Анализ изображения на цвета
-    unique_colors = set()
-    for y in range(height):
-        for x in range(width):
-            pixel_color = tuple(image_array[y, x])
-            unique_colors.add(pixel_color)
+    unique_colors = get_unique_colors_kmeans(image_array, num_colors=10)
 
     # Сопоставление цветов с цифрами
-    color_to_number = {color: i + 1 for i, color in enumerate(unique_colors)}
+    color_to_number = {tuple(color): i + 1 for i, color in enumerate(unique_colors)}
 
     # Создание нового изображения для результата
     result_image = Image.new("RGB", (width, height), "white")
@@ -58,7 +64,7 @@ if __name__ == "__main__":
         for x in range(width):
             color = get_triangle_color(x, y, image_array, unique_colors)
             if color is not None:
-                number = color_to_number[color]
+                number = color_to_number[tuple(color)]
                 draw_number_in_triangle(draw, number, x, y, font)
 
     # Сохраняем результат
