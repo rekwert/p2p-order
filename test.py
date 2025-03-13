@@ -1,4 +1,4 @@
-ffrom PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from sklearn.cluster import KMeans
 
