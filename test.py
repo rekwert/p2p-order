@@ -33,7 +33,10 @@ def get_triangle_color(x, y):
 # Функция для вставки числа в треугольник
 def draw_number_in_triangle(draw, number, x, y, font):
     text = str(number)
-    text_width, text_height = draw.textsize(text, font=font)
+    # Используем textbbox для получения размеров текста
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]  # Ширина текста
+    text_height = bbox[3] - bbox[1]  # Высота текста
     text_x = x - text_width // 2
     text_y = y - text_height // 2
     draw.text((text_x, text_y), text, fill="black", font=font)
