@@ -7,7 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage  # Для хранения 
 from aiogram import Router
 
 # Конфигурация бота
-TOKEN = "7679686266:AAFQUchkQF4hnC1VecX30uHAnOxPdxbRXJA"
+TOKEN = "TOKEN"
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()  # Хранилище для FSM (состояний)
 dp = Dispatcher(storage=storage)
